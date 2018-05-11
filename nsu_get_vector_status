@@ -1,0 +1,62 @@
+#!/bin/bash
+
+usage() { echo "Usage: $0 [-g <graph_name>] [-v <gdf_version>]" 1>&2; exit 1; }
+
+while getopts ":g:v:" o; do
+    case "${o}" in
+        g)
+            g=${OPTARG}
+            ;;
+        v)
+            v=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${g}" ] || [ -z "${v}" ]; then
+    usage
+fi
+
+echo "graph_name = ${g}"
+echo "version = ${v}"
+
+gdf_file=testrun.gdf.$v
+
+#echo $gdf_file
+
+declare -a arr
+declare -a arr1
+inactive_vectors=""
+active_vectors=""
+total_vectors=""
+Group_id=""
+
+arr=( $(grep -in "^Group" $gdf_file | grep -A1 -i "$g" | cut -d':' -f1) )
+
+#echo ${arr[0]}
+#echo ${arr[1]}
+
+sed -n "${arr[0]},${arr[1]}p" $gdf_file >/tmp/data.txt
+
+egrep -v '^(Group|Graph)' /tmp/data.txt > /tmp/vectors.txt
+
+grep "^#-" /tmp/vectors.txt > /tmp/inactive_vectors.txt
+
+Group_id=$(grep -i "^group" $gdf_file | grep -i "$g" | cut -d'|' -f3)
+
+total_vectors=$(grep -i "^group" $gdf_file | grep -i "$g" | cut -d'|' -f6)
+
+inactive_vectors=`grep "^#-" /tmp/vectors.txt | wc -l`
+
+active_vectors=`grep -v "^#-" /tmp/vectors.txt | wc -l`
+
+
+echo "Total Vectors: $total_vectors"
+echo "Group ID: $Group_id" 
+echo "Total inactive vectors: $inactive_vectors"
+echo "Total active vectors: $active_vectors"
+
