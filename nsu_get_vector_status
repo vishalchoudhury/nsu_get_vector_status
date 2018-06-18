@@ -54,6 +54,7 @@ inactive_vectors=`grep "^#-" /tmp/vectors.txt | wc -l`
 
 active_vectors=`grep -v "^#-" /tmp/vectors.txt | wc -l`
 
+total_vectors=$((total_vectors - 2))
 
 echo "Total Vectors: $total_vectors"
 echo "Group ID: $Group_id" 
